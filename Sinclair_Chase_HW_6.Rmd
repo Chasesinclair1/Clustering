@@ -1,0 +1,145 @@
+---
+title: "Sinclair_Chase_HW_6"
+author: "Chase Sinclair"
+date: "4/16/2020"
+output: html_document
+---
+### Honor code: 
+“I have neither given nor received unauthorized assistance on this assignment.”
+-Chase
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+
+#### (a) Load the USArrests dataset in R, and describe the dataset in your own words, in 2-3 lines.
+```{r}
+data("USArrests")
+str(USArrests)
+```
+
+The dataset USArrests contains 50 observations from the 50 different states and 4 variables including: Murder arrests (per 100,000), Assult arrests (per 100,000), Percent of urban population, and Rape arrests (per 100,000). The data comes from the year 1973 and is widely popular in R programming. 
+
+#### (b)
+```{r}
+plot(USArrests$Murder,USArrests$Assault, main="Murder Vs Assault", 
+   xlab="Murder Arrests (per 100,000) ", ylab="Assult Arrests (per 100,000) ", pch=19) 
+
+plot(USArrests$Assault, USArrests$Rape, main="Assault Vs Rape", 
+   xlab="Assault Arrests (per 100,000) ", ylab="Rape Arrests (per 100,000) ", pch=19) 
+
+plot(USArrests$Rape,USArrests$Murder, main="Rape Vs Murder", 
+   xlab="Rape Arrests (per 100,000) ", ylab="Murder Arrests (per 100,000) ", pch=19) 
+```
+
+From the plots we can see that two of them hold clear positive linear relationships while one could be considered questionably linear positive. Murder Vs Assault and Assault vs Rape are the plots have have clear positive linear relationships while Rape vs Muder has a positive linear relationhip but it is not very strong as a lot of points are randomly scattered.
+
+#### (c) Calculate the mean and standard deviation of the four variables.
+```{r}
+apply(USArrests,2,mean)
+apply(USArrests,2,sd)
+
+```
+
+#### (d) Perform principal components analysis of the dataset using R. How many principal components are there? For each principal component, report the standard deviation and the proportion of variance explained.
+```{r}
+pr.out=prcomp(USArrests , scale=TRUE)
+pr.out$rotation
+```
+
+We have 4 Principle Components.
+
+```{r}
+pr.out$sdev 
+pr.var=pr.out$sdev ^2
+pve=pr.var/sum(pr.var) 
+pve 
+summary(pr.out)
+```
+
+PC1 explains 62.0% of the variance in the data
+PC2 explains 24.7% of the variance in the data
+PC3 explains 8.9% of the variance in the data
+PC4 explains 4.3% of the variance in the data
+
+#### (e) How many principal components would you need to explain at least (i) 60% of the total variance? (ii) 75% of the total variance? (iii) 90% of the total variance?
+```{r}
+plot(pve,xlab=" Principal Component", ylab="Proportion of
+Variance Explained", ylim=c(0,1) ,type="b")
+
+plot(cumsum(pve), xlab="Principal Component", ylab="
+Cumulative Proportion of Variance Explained", ylim=c(0,1) ,
+type="b")
+```
+
+PC1 alone could explain at least 60% of the total variation. PC1 and PC2 coud explain at least 75% of the total variation. PC1, PC2, PC3 could explain at least 90% of the total variation
+
+# Problem 2
+
+#### (a) Recall the NCI60 dataset analyzed in the textbook. Load the NCI60 dataset from the ISLR package in R, and describe the dataset in your own words, in 2-3 lines.
+```{r}
+library(ISLR)
+nci.labs=NCI60$labs 
+nci.data=NCI60$data
+dim(nci.data) 
+table(nci.labs) 
+```
+
+The NCI60 dataset consists of two elements: "data" and "labs". The data portion consists of 6830 genes from 64 cancer cell lines formulated in matrix where labs label the different cancer types for the 64 cell lines formulated in vector form. 
+
+#### (b) Perform principal components analysis of the dataset using R. How many principal components are there? For the top 10 principal components, report the standard deviation and the proportion of variance explained.
+```{r}
+pr.out=prcomp(nci.data, scale=TRUE)
+summary(pr.out)                      #Print All
+
+pr.out$sdev[1:10]                    # Print top ten PC means
+pr.var=pr.out$sdev ^2
+pve=pr.var/sum(pr.var) 
+pve[1:10]                            # Print top ten PC proportion of variances
+```
+
+#### (c) How many principal components would you need to explain at least (i) 60% of the total variance? (ii) 75% of the total variance? (iii) 90% of the total variance?
+```{r}
+plot(cumsum(pve), type="o", ylab="Cumulative PVE", xlab=" Principal Component ", col="brown3")
+```
+
+(i) The first 17 PCs explain at least 60% of the total variance
+(ii) The first 28 PCs explain at least 75% of the total variance
+(iii) The first 44 PCs explain at least 90% of the total variance 
+
+#### (d) Explain why there is a drastic difference between your answers to 1(e) and 2(c).
+
+The second dataset has manymore PCs then the first dataset. Having more PCs means that the variation will be caused by more variables and spread out between them. In the first dataset, we only had 4 PC's so the variation can only be between 4 variables. 
+
+# Problem 3
+
+#### (a) Load the iris dataset in R. We are going to consider sepal and petal dimensions as features for clustering, and will ignore species.
+```{r}
+str(iris)
+species <- as.list(iris$Species)
+species <- unlist(species)
+iris <- iris[1:4]
+```
+
+#### (b) Perform hierarchical clustering on the data and cut the hierarchical clustering tree at 3 clusters.
+```{r}
+iris_dist <- dist(iris, method = "euclidean")
+hier <- hclust(iris_dist, method = "complete")
+hierCut <- cutree(hier, 3)
+```
+
+#### (c) Perform k-means clustering of the data with k=3 clusters.
+```{r}
+model_3 <- kmeans(iris, centers = 3)
+```
+
+#### (d) For both clustering methods, report the two-way table with actual species and clusters. What is your interpretation from the two tables?
+```{r}
+table(species, hierCut)
+table(species, model_3$cluster)
+```
+
+The k-means method for clustering is a better method according to the tables as it does a better job at seperating the species when clustering.
+
